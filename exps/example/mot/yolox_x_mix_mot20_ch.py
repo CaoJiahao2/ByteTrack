@@ -17,10 +17,13 @@ class Exp(MyExp):
         self.exp_name = os.path.split(os.path.realpath(__file__))[1].split(".")[0]
         self.train_ann = "train.json"
         self.val_ann = "test.json"   # change to train.json when running on training set
+        ##############################
+        # only defferent from yolox_x_mix_det.py
         self.input_size = (896, 1600)
         self.test_size = (896, 1600)
         #self.test_size = (736, 1920)
         self.random_size = (20, 36)
+        ##############################
         self.max_epoch = 80
         self.print_interval = 20
         self.eval_interval = 5
@@ -114,12 +117,8 @@ class Exp(MyExp):
         else:
             sampler = torch.utils.data.SequentialSampler(valdataset)
 
-        dataloader_kwargs = {
-            "num_workers": self.data_num_workers,
-            "pin_memory": True,
-            "sampler": sampler,
-        }
-        dataloader_kwargs["batch_size"] = batch_size
+        dataloader_kwargs = {"num_workers": self.data_num_workers, "pin_memory": True,
+                             "sampler": sampler, "batch_size": batch_size}
         val_loader = torch.utils.data.DataLoader(valdataset, **dataloader_kwargs)
 
         return val_loader

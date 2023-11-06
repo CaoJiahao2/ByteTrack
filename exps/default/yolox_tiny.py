@@ -7,6 +7,8 @@ import os
 from yolox.exp import Exp as MyExp
 
 
+# YOLOX-tiny
+# 定义了一个YOLOX-tiny的类，继承了YOLOX的类
 class Exp(MyExp):
     def __init__(self):
         super(Exp, self).__init__()

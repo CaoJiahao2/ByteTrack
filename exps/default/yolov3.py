@@ -50,14 +50,15 @@ class Exp(MyExp):
                 ),
         )
 
-        dataset = MosaicDetection(
+        # MosaicDetection是一个数据增强的类，用于数据增强
+        dataset = MosaicDetection( #译为，马赛克检测
             dataset,
             mosaic=not no_aug,
             img_size=self.input_size,
-            preproc=TrainTransform(
-                rgb_means=(0.485, 0.456, 0.406),
-                std=(0.229, 0.224, 0.225),
-                max_labels=120
+            preproc=TrainTransform(# 数据增强
+                rgb_means=(0.485, 0.456, 0.406),# 均值
+                std=(0.229, 0.224, 0.225),# 标准差
+                max_labels=120# 最大标签数
             ),
             degrees=self.degrees,
             translate=self.translate,

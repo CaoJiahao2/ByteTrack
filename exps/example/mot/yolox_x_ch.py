@@ -40,6 +40,8 @@ class Exp(MyExp):
         )
 
         dataset = MOTDataset(
+            # notice the changes here
+            # data_dir=os.path.join(get_yolox_datadir(), "mix_det"),
             data_dir=os.path.join(get_yolox_datadir(), "ch_all"),
             json_file=self.train_ann,
             name='',
@@ -85,8 +87,8 @@ class Exp(MyExp):
             mosaic=not no_aug,
         )
 
-        dataloader_kwargs = {"num_workers": self.data_num_workers, "pin_memory": True}
-        dataloader_kwargs["batch_sampler"] = batch_sampler
+        dataloader_kwargs = {"num_workers": self.data_num_workers,
+                             "pin_memory": True, "batch_sampler": batch_sampler}
         train_loader = DataLoader(self.dataset, **dataloader_kwargs)
 
         return train_loader
@@ -113,12 +115,8 @@ class Exp(MyExp):
         else:
             sampler = torch.utils.data.SequentialSampler(valdataset)
 
-        dataloader_kwargs = {
-            "num_workers": self.data_num_workers,
-            "pin_memory": True,
-            "sampler": sampler,
-        }
-        dataloader_kwargs["batch_size"] = batch_size
+        dataloader_kwargs = {"num_workers": self.data_num_workers, "pin_memory": True,
+                             "sampler": sampler, "batch_size": batch_size}
         val_loader = torch.utils.data.DataLoader(valdataset, **dataloader_kwargs)
 
         return val_loader
