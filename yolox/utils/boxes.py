@@ -112,6 +112,7 @@ def matrix_iou(a, b):
 
 
 def adjust_box_anns(bbox, scale_ratio, padw, padh, w_max, h_max):
+    #clip labels if use MOT20
     #bbox[:, 0::2] = np.clip(bbox[:, 0::2] * scale_ratio + padw, 0, w_max)
     #bbox[:, 1::2] = np.clip(bbox[:, 1::2] * scale_ratio + padh, 0, h_max)
     bbox[:, 0::2] = bbox[:, 0::2] * scale_ratio + padw

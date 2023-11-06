@@ -130,7 +130,7 @@ def random_perspective(
         y = xy[:, [1, 3, 5, 7]]
         xy = np.concatenate((x.min(1), y.min(1), x.max(1), y.max(1))).reshape(4, n).T
 
-        # clip boxes
+        # clip boxes if use MOT20
         #xy[:, [0, 2]] = xy[:, [0, 2]].clip(0, width)
         #xy[:, [1, 3]] = xy[:, [1, 3]].clip(0, height)
 
