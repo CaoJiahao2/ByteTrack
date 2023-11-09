@@ -27,5 +27,6 @@ yolox_x.py
 #### uot
 ### tools
 将各种数据集转换为coco格式
+convert_cityperson_to_coco.py
 ### tutorial
 ### yolox

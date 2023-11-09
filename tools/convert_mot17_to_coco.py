@@ -35,6 +35,7 @@ if __name__ == '__main__':
         for seq in sorted(seqs):
             if '.DS_Store' in seq:
                 continue
+            ##### deferant to mot20
             if 'mot' in DATA_PATH and (split != 'test' and not ('FRCNN' in seq)):
                 continue
             video_cnt += 1  # video sequence number.

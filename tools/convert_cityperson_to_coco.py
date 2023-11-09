@@ -8,12 +8,21 @@ DATA_FILE_PATH = 'datasets/data_path/citypersons.train'
 OUT_PATH = DATA_PATH + 'annotations/'
 
 def load_paths(data_path):
+    """Load image path and label path from data_path.
+    Args:
+        data_path: Path to the file containing image and label paths.
+    Returns:
+        img_files: A list containing paths of all images.
+        label_files: A list containing paths of all labels.
+    Function:
+        replace the 'images' with 'labels_with_ids' and '.png' with '.txt'
+    """
     with open(data_path, 'r') as file:
         img_files = file.readlines()
         img_files = [x.replace('\n', '') for x in img_files]
         img_files = list(filter(lambda x: len(x) > 0, img_files))
     label_files = [x.replace('images', 'labels_with_ids').replace('.png', '.txt').replace('.jpg', '.txt') for x in img_files]
-    return img_files, label_files                    
+    return img_files, label_files
 
 if __name__ == '__main__':
     if not os.path.exists(OUT_PATH):
@@ -35,6 +44,7 @@ if __name__ == '__main__':
         out['images'].append(image_info)
         # Load labels
         if os.path.isfile(os.path.join("datasets", label_path)):
+            """labels: [x, y, w, h, vis, ign]"""
             labels0 = np.loadtxt(os.path.join("datasets", label_path), dtype=np.float32).reshape(-1, 6)
             # Normalized xywh to pixel xyxy format
             labels = labels0.copy()

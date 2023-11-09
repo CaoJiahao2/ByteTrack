@@ -10,6 +10,9 @@ import argparse
 import random
 import warnings
 
+# import os
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+# os.environ['LOCAL_RANK'] = '0,1,2,3'
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX train parser")

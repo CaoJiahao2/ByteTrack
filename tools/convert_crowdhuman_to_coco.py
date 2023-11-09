@@ -9,6 +9,7 @@ SPLITS = ['val', 'train']
 DEBUG = False
 
 def load_func(fpath):
+    """Load json file."""
     print('fpath', fpath)
     assert os.path.exists(fpath)
     with open(fpath,'r') as fid:

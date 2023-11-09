@@ -7,7 +7,17 @@ DATA_PATH = 'datasets/ETHZ/'
 DATA_FILE_PATH = 'datasets/data_path/eth.train'
 OUT_PATH = DATA_PATH + 'annotations/'
 
+# most same as cityperson
 def load_paths(data_path):
+    """Load image path and label path from data_path.
+    Args:
+        data_path: Path to the file containing image and label paths.
+    Returns:
+        img_files: A list containing paths of all images.
+        label_files: A list containing paths of all labels.
+    Function:
+        replace the 'images' with 'labels_with_ids' and '.png' with '.txt'
+    """
     with open(data_path, 'r') as file:
         img_files = file.readlines()
         img_files = [x.replace('\n', '') for x in img_files]
