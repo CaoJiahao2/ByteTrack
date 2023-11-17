@@ -15,7 +15,9 @@ ln -s ../Cityscapes cp_train
 ln -s ../ETHZ ethz_train
 cd ..
 """
+#MOT17 train, CrowdHuman train and val, Cityperson train, ETHZ train
 
+# 读取mot数据集的标注信息
 mot_json = json.load(open('datasets/mot/annotations/train.json','r'))
 
 img_list = list()
@@ -37,12 +39,15 @@ max_img = 10000
 max_ann = 2000000
 max_video = 10
 
+# 读取Crowdhuman数据集的标注信息
 crowdhuman_json = json.load(open('datasets/crowdhuman/annotations/train.json','r'))
+# 将crowdhuman数据集的图片和标注信息添加到mix_mot_ch数据集中
 img_id_count = 0
 for img in crowdhuman_json['images']:
     img_id_count += 1
     img['file_name'] = 'crowdhuman_train/' + img['file_name']
     img['frame_id'] = img_id_count
+    # the same image id
     img['prev_image_id'] = img['id'] + max_img
     img['next_image_id'] = img['id'] + max_img
     img['id'] = img['id'] + max_img
@@ -54,13 +59,12 @@ for ann in crowdhuman_json['annotations']:
     ann['image_id'] = ann['image_id'] + max_img
     ann_list.append(ann)
 
-print('crowdhuman_train')
-
 video_list.append({
     'id': max_video,
     'file_name': 'crowdhuman_train'
 })
 
+print('crowdhuman_train')
 
 max_img = 30000
 max_ann = 10000000
@@ -82,12 +86,12 @@ for ann in crowdhuman_val_json['annotations']:
     ann['image_id'] = ann['image_id'] + max_img
     ann_list.append(ann)
 
-print('crowdhuman_val')
-
 video_list.append({
     'id': max_video,
     'file_name': 'crowdhuman_val'
 })
+
+print('crowdhuman_val')
 
 max_img = 40000
 max_ann = 20000000

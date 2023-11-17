@@ -111,7 +111,16 @@ def make_parser():
 
 
 def compare_dataframes(gts, ts):
-    accs = []
+    """
+        Compare groundtruth and tracking results.
+        Args:
+            gts: dict of groundtruths, key is the sequence name, value is the dataframe.
+            ts: dict of tracking results, key is the sequence name, value is the dataframe.
+        Returns:
+            accs: list of accs for each sequence.
+            names: list of sequence names.
+    """
+    accs = []   # list of accs for each sequence
     names = []
     for k, tsacc in ts.items():
         if k in gts:            
@@ -126,6 +135,9 @@ def compare_dataframes(gts, ts):
 
 @logger.catch
 def main(exp, args, num_gpu):
+    # args = make_parser().parse_args()
+    # logger.info("args value: {}".format(args))
+    # exp = get_exp(args.exp_file, args.name)
     if args.seed is not None:
         random.seed(args.seed)
         torch.manual_seed(args.seed)
@@ -160,6 +172,7 @@ def main(exp, args, num_gpu):
     if args.tsize is not None:
         exp.test_size = (args.tsize, args.tsize)
 
+    # build model
     model = exp.get_model()
     logger.info("Model Summary: {}".format(get_model_info(model, exp.test_size)))
     #logger.info("Model Structure:\n{}".format(str(model)))

@@ -1,7 +1,12 @@
 import cv2
 
 def convert_video(video_path):
-    cap = cv2.VideoCapture(video_path)
+    """
+    Convert video to mp4 format.
+    param video_path: video path.
+    return: None.
+    """
+    cap = cv2.VideoCapture(video_path) # BGR
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float
     fps = cap.get(cv2.CAP_PROP_FPS)

@@ -13,9 +13,12 @@ ln -s ../crowdhuman/CrowdHuman_train crowdhuman_train
 ln -s ../crowdhuman/CrowdHuman_val crowdhuman_val
 cd ..
 """
+#MOT17 half train and CrowdHuman train and val
 
+# 读取mot数据集的标注信息
 mot_json = json.load(open('datasets/mot/annotations/train_half.json','r'))
 
+# 将mot数据集的图片和标注信息添加到mix_mot_ch数据集中
 img_list = list()
 for img in mot_json['images']:
     img['file_name'] = 'mot_train/' + img['file_name']
@@ -34,7 +37,9 @@ max_img = 10000
 max_ann = 2000000
 max_video = 10
 
+# 读取Crowdhuman数据集的标注信息
 crowdhuman_json = json.load(open('datasets/crowdhuman/annotations/train.json','r'))
+# 将crowdhuman数据集的图片和标注信息添加到mix_mot_ch数据集中
 img_id_count = 0
 for img in crowdhuman_json['images']:
     img_id_count += 1
@@ -58,10 +63,12 @@ video_list.append({
 
 print('crowdhuman_train')
 
+# 读取Crowdhuman数据集的标注信息
 max_img = 30000
 max_ann = 10000000
 
 crowdhuman_val_json = json.load(open('datasets/crowdhuman/annotations/val.json','r'))
+# 与crowdhuman_train相同
 img_id_count = 0
 for img in crowdhuman_val_json['images']:
     img_id_count += 1
@@ -91,3 +98,4 @@ mix_json['annotations'] = ann_list
 mix_json['videos'] = video_list
 mix_json['categories'] = category_list
 json.dump(mix_json, open('datasets/mix_mot_ch/annotations/train.json','w'))
+#json dump()函数用于将dict类型的数据转成str，并写入到json文件中

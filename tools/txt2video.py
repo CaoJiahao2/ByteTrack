@@ -1,8 +1,21 @@
+"""
+Function:
+    1. Convert txt to image
+    2. Convert image to video
+Input:
+    1. txt_path: txt file path
+    2. img_path: image file path
+    3. visual_path: visual file path
+    4. show_video_names: video names to show
+Output:
+    1. visual_path: visual file path
+"""
 import os
 import sys
 import json
 import cv2
 import glob as gb
+#glob is a module that finds all the pathnames matching a specified pattern according to the rules used by the Unix shell
 import numpy as np
 
 
@@ -92,7 +105,7 @@ def colormap(rgb=False):
     ).astype(np.float32)
     color_list = color_list.reshape((-1, 3)) * 255
     if not rgb:
-        color_list = color_list[:, ::-1]
+        color_list = color_list[:, ::-1]#reverse the order of the elements along axis 1
     return color_list
 
 
@@ -180,7 +193,18 @@ def txt2img(visual_path="visual_val_gt"):
             img = cv2.imread(img_dict[img_id])
             for bbox in txt_dict[img_id]:
                 cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color_list[bbox[4]%79].tolist(), thickness=2)
+                #cv2 rectangle(img, pt1, pt2, color[, thickness[, lineType[, shift]]]) → None
+                # pt1 – Vertex of the rectangle., pt2 – Vertex of the rectangle opposite to pt1 .,
+                # color – Rectangle color or brightness (grayscale image)., thickness – Thickness of lines that make up
+                # the rectangle. Negative values, like CV_FILLED , mean that the function has to draw a filled rectangle.
+                # , lineType – Type of the line. See the line() description., shift – Number of fractional bits in the point coordinates.
                 cv2.putText(img, "{}".format(int(bbox[4])), (int(bbox[0]), int(bbox[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color_list[bbox[4]%79].tolist(), 2)
+                #cv2.putText(img, text, org, fontFace, fontScale, color[, thickness[, lineType[, bottomLeftOrigin]]]) → None
+                # org – Bottom-left corner of the text string in the image.
+                # fontFace – Font type, see HersheyFonts.
+                # fontScale – Font scale factor that is multiplied by the font-specific base size.
+                # color – Text color.
+                # thickness – Thickness of the lines used to draw a text.
             cv2.imwrite(visual_path + "/" + show_video_name + "{:0>6d}.png".format(img_id), img)
         print(show_video_name, "Done")
     print("txt2img Done")
@@ -189,7 +213,8 @@ def txt2img(visual_path="visual_val_gt"):
 def img2video(visual_path="visual_val_gt"):
     print("Starting img2video")
 
-    img_paths = gb.glob(visual_path + "/*.png") 
+    img_paths = gb.glob(visual_path + "/*.png")
+    #gb glob module finds all the pathnames matching a specified pattern according to the rules used by the Unix shell
     fps = 16 
     size = (1920,1080) 
     videowriter = cv2.VideoWriter(visual_path + "_video.avi",cv2.VideoWriter_fourcc('M','J','P','G'), fps, size)

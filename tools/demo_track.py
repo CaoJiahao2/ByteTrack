@@ -19,9 +19,13 @@ IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
 
 
 def make_parser():
+    # make_parser() is used to parse the arguments
     parser = argparse.ArgumentParser("ByteTrack Demo!")
     parser.add_argument(
-        "demo", default="image", help="demo type, eg. image, video and webcam"
+        "demo",
+        default="video",
+        #default="image",
+        help="demo type, eg. image, video and webcam"
     )
     parser.add_argument("-expn", "--experiment-name", type=str, default=None)
     parser.add_argument("-n", "--name", type=str, default=None, help="model name")
@@ -41,11 +45,15 @@ def make_parser():
     parser.add_argument(
         "-f",
         "--exp_file",
-        default=None,
+        default="exps/example/mot/yolox_x_mix_det.py",
+        # default=None,
         type=str,
         help="pls input your expriment description file",
     )
-    parser.add_argument("-c", "--ckpt", default=None, type=str, help="ckpt for eval")
+    parser.add_argument("-c", "--ckpt",
+                        default="pretrained/bytetrack_x_mot17.pth.tar",
+                        #default=None,
+                        type=str, help="ckpt for eval")
     parser.add_argument(
         "--device",
         default="gpu",
@@ -59,14 +67,16 @@ def make_parser():
     parser.add_argument(
         "--fp16",
         dest="fp16",
-        default=False,
+        default=True,
+        # default=False,
         action="store_true",
         help="Adopting mix precision evaluating.",
     )
     parser.add_argument(
         "--fuse",
         dest="fuse",
-        default=False,
+        default=True,
+        # default=False,
         action="store_true",
         help="Fuse conv and bn for testing.",
     )
@@ -91,17 +101,31 @@ def make_parser():
 
 
 def get_image_list(path):
+    """
+    Args:
+        path (str): image path
+    Function: get all images in the path
+    """
     image_names = []
     for maindir, subdir, file_name_list in os.walk(path):
+    # os.walk() 方法用于通过在目录树中游走输出在目录中的文件名，向上或者向下。
         for filename in file_name_list:
             apath = osp.join(maindir, filename)
+            # os.path.join() 方法用于将多个路径组合后返回
             ext = osp.splitext(apath)[1]
+            # os.path.splitext() 方法用于分离文件名与扩展名
             if ext in IMAGE_EXT:
                 image_names.append(apath)
     return image_names
 
 
 def write_results(filename, results):
+    """
+    Args:
+        filename (str): file name
+        results (list): list of results
+    Function: write results to txt file
+    """
     save_format = '{frame},{id},{x1},{y1},{w},{h},{s},-1,-1,-1\n'
     with open(filename, 'w') as f:
         for frame_id, tlwhs, track_ids, scores in results:
@@ -110,6 +134,7 @@ def write_results(filename, results):
                     continue
                 x1, y1, w, h = tlwh
                 line = save_format.format(frame=frame_id, id=track_id, x1=round(x1, 1), y1=round(y1, 1), w=round(w, 1), h=round(h, 1), s=round(score, 2))
+                # round(x, 1) 保留一位小数,round(x, 2) 保留两位小数
                 f.write(line)
     logger.info('save results to {}'.format(filename))
 
@@ -176,6 +201,11 @@ class Predictor(object):
 
 
 def image_demo(predictor, vis_folder, current_time, args):
+    """
+    Demo for image.
+    input: image path
+    output: save image to vis_folder
+    """
     if osp.isdir(args.path):
         files = get_image_list(args.path)
     else:
@@ -234,6 +264,11 @@ def image_demo(predictor, vis_folder, current_time, args):
 
 
 def imageflow_demo(predictor, vis_folder, current_time, args):
+    """
+    Demo for image flow like video.
+    input: video path or camera id
+    output: save video to vis_folder
+    """
     cap = cv2.VideoCapture(args.path if args.demo == "video" else args.camid)
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)  # float
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)  # float

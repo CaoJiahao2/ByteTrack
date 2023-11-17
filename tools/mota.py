@@ -20,6 +20,15 @@ from pathlib import Path
 
 
 def compare_dataframes(gts, ts):
+    """
+    Compare groundtruth and test dataframes.
+    Args:
+        gts: Dictionary of groundtruth dataframes indexed by sequence name.
+        ts: Dictionary of test dataframes indexed by sequence name.
+    Returns:
+        accs: List of dataframes containing the metrics for each sequence.
+        names: List of sequence names.
+    """
     accs = []
     names = []
     for k, tsacc in ts.items():

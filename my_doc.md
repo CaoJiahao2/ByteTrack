@@ -28,5 +28,11 @@ yolox_x.py
 ### tools
 将各种数据集转换为coco格式
 convert_cityperson_to_coco.py
+视频转化
+convert_video.py
+
 ### tutorial
+### videos
+包含了一个天安门的视频
 ### yolox
+yolox包

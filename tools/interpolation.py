@@ -1,3 +1,12 @@
+# Description: This file is used to interpolate the disconnected tracklets.
+# input:
+#     txt_path: the path of the txt file of the tracklets.
+#     save_path: the path of the txt file of the interpolated tracklets.
+#     n_min: the minimum number of frames of the tracklets.
+#     n_dti: the maximum number of frames of the interpolated tracklets.
+# output:
+#     None
+# interpolation ,插值
 import numpy as np
 import os
 import glob
@@ -46,6 +55,7 @@ def get_mota(data_root, txt_path):
         formatters=mh.formatters,
         namemap=mm.io.motchallenge_metric_names
     )
+    # only change here
     mota = float(strsummary.split(' ')[-6][:-1])
     return mota
 
@@ -64,6 +74,14 @@ def write_results_score(filename, results):
 
 
 def dti(txt_path, save_path, n_min=25, n_dti=20):
+    """
+    Function: Interpolate the disconnected tracklets.
+    Args:
+        txt_path: the path of the txt file of the tracklets.
+        save_path: the path of the txt file of the interpolated tracklets.
+        n_min: the minimum number of frames of the tracklets.
+        n_dti: the maximum number of frames of the interpolated tracklets.
+    """
     seq_txts = sorted(glob.glob(os.path.join(txt_path, '*.txt')))
     for seq_txt in seq_txts:
         seq_name = seq_txt.split('/')[-1]

@@ -13,7 +13,9 @@ ln -s ../crowdhuman/CrowdHuman_train crowdhuman_train
 ln -s ../crowdhuman/CrowdHuman_val crowdhuman_val
 cd ..
 """
+#MOT20 train, CrowdHuman
 
+# 读取mot数据集的标注信息
 mot_json = json.load(open('datasets/MOT20/annotations/train.json','r'))
 
 img_list = list()
@@ -29,12 +31,13 @@ video_list = mot_json['videos']
 category_list = mot_json['categories']
 
 
-
+print('mot17')
 
 max_img = 10000
 max_ann = 2000000
 max_video = 10
 
+# 读取Crowdhuman数据集的标注信息
 crowdhuman_json = json.load(open('datasets/crowdhuman/annotations/train.json','r'))
 img_id_count = 0
 for img in crowdhuman_json['images']:
