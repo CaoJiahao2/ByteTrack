@@ -28,6 +28,14 @@ class Evaluator(object):
         self.acc = mm.MOTAccumulator(auto_id=True)
 
     def eval_frame(self, frame_id, trk_tlwhs, trk_ids, rtn_events=False):
+        """
+        Evaluate single frame.
+        :param frame_id: The frame id.
+        :param trk_tlwhs: The tracking results.
+        :param trk_ids: The tracking ids.
+        :param rtn_events: Whether to return the events.
+        :return: The events.
+        """
         # results
         trk_tlwhs = np.copy(trk_tlwhs)
         trk_ids = np.copy(trk_ids)
@@ -76,6 +84,11 @@ class Evaluator(object):
         return events
 
     def eval_file(self, filename):
+        """
+        Evaluate result file.
+        :param filename: The filename of result file.
+        :return: The evaluation results.
+        """
         self.reset_accumulator()
 
         result_frame_dict = read_results(filename, self.data_type, is_gt=False)
@@ -106,7 +119,9 @@ class Evaluator(object):
         return summary
 
     @staticmethod
+
     def save_summary(summary, filename):
+        # 将评估结果的汇总信息保存为 Excel 文件
         import pandas as pd
         writer = pd.ExcelWriter(filename)
         summary.to_excel(writer)

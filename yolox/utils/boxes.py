@@ -9,19 +9,21 @@ import torchvision
 import torch.nn.functional as F
 
 __all__ = [
-    "filter_box",
-    "postprocess",
-    "bboxes_iou",
-    "matrix_iou",
-    "adjust_box_anns",
-    "xyxy2xywh",
-    "xyxy2cxcywh",
+    # __all__ is a list of public name,user can use `from yolox.utils import *` to import all
+    "filter_box", # filter_box(output, scale_range)
+    "postprocess", # postprocess(prediction, num_classes, conf_thre=0.7, nms_thre=0.45)
+    "bboxes_iou", # bboxes_iou(bboxes_a, bboxes_b, xyxy=True)
+    "matrix_iou", # matrix_iou(a, b)
+    "adjust_box_anns", # adjust_box_anns(bbox, scale_ratio, padw, padh, w_max, h_max)
+    "xyxy2xywh", # xyxy2xywh(bboxes)
+    "xyxy2cxcywh", # xyxy2cxcywh(bboxes)
 ]
 
 
 def filter_box(output, scale_range):
     """
     output: (N, 5+class) shape
+    从一组边界框中选择那些符合指定尺度范围的边界框
     """
     min_scale, max_scale = scale_range
     w = output[:, 2] - output[:, 0]
@@ -31,6 +33,10 @@ def filter_box(output, scale_range):
 
 
 def postprocess(prediction, num_classes, conf_thre=0.7, nms_thre=0.45):
+    """
+    功能：对模型输出的边界框进行后处理，包括去除置信度低的边界框、
+    使用NMS去除重叠的边界框、将边界框坐标从中心坐标和宽高格式转换为左上角和右下角坐标格式
+    """
     box_corner = prediction.new(prediction.shape)
     box_corner[:, :, 0] = prediction[:, :, 0] - prediction[:, :, 2] / 2
     box_corner[:, :, 1] = prediction[:, :, 1] - prediction[:, :, 3] / 2
@@ -73,12 +79,16 @@ def postprocess(prediction, num_classes, conf_thre=0.7, nms_thre=0.45):
 
 
 def bboxes_iou(bboxes_a, bboxes_b, xyxy=True):
+    """
+    return iou of two sets of bboxes, numpy version for data augenmentation
+    """
     if bboxes_a.shape[1] != 4 or bboxes_b.shape[1] != 4:
         raise IndexError
 
     if xyxy:
         tl = torch.max(bboxes_a[:, None, :2], bboxes_b[:, :2])
         br = torch.min(bboxes_a[:, None, 2:], bboxes_b[:, 2:])
+        # torch.prod()函数用于计算张量沿着指定维度的乘积
         area_a = torch.prod(bboxes_a[:, 2:] - bboxes_a[:, :2], 1)
         area_b = torch.prod(bboxes_b[:, 2:] - bboxes_b[:, :2], 1)
     else:
@@ -113,6 +123,7 @@ def matrix_iou(a, b):
 
 def adjust_box_anns(bbox, scale_ratio, padw, padh, w_max, h_max):
     #clip labels if use MOT20
+    # np.clip is used to limit the value of an array between a minimum and a maximum value
     #bbox[:, 0::2] = np.clip(bbox[:, 0::2] * scale_ratio + padw, 0, w_max)
     #bbox[:, 1::2] = np.clip(bbox[:, 1::2] * scale_ratio + padh, 0, h_max)
     bbox[:, 0::2] = bbox[:, 0::2] * scale_ratio + padw

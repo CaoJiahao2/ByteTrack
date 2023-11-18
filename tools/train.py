@@ -16,7 +16,9 @@ import warnings
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX train parser")
-    parser.add_argument("-expn", "--experiment-name", type=str, default=None)
+    parser.add_argument("-expn", "--experiment-name", type=str,
+        # default=None
+        default="debug1",)
     parser.add_argument("-n", "--name", type=str, default=None, help="model name")
 
     # distributed
@@ -29,9 +31,15 @@ def make_parser():
         type=str,
         help="url used to set up distributed training",
     )
-    parser.add_argument("-b", "--batch-size", type=int, default=64, help="batch size") # -b 64,batch size
+    parser.add_argument("-b", "--batch-size", type=int,
+        # default=64,
+        default=8,
+        help="batch size") # -b 64,batch size
     parser.add_argument(
-        "-d", "--devices", default=None, type=int, help="device for training" # -d 0,1,2,3,device for training
+        "-d", "--devices",
+        # default=None,
+        default=4,
+        type=int, help="device for training" # -d 0,1,2,3,device for training
     )
     parser.add_argument(
         "--local_rank", default=0, type=int, help="local rank for dist training"
@@ -39,14 +47,18 @@ def make_parser():
     parser.add_argument(
         "-f",
         "--exp_file",
-        default=None,
+        # default=None,
+        default="../exps/example/mot/yolox_s_mix_det.py",
         type=str,
         help="plz input your expriment description file", # -f yolox_s.py,plz input your expriment description file
     )
     parser.add_argument(
         "--resume", default=False, action="store_true", help="resume training" # --resume, resume training
     )
-    parser.add_argument("-c", "--ckpt", default=None, type=str, help="checkpoint file") # -c yolox_s.pth,checkpoint file
+    parser.add_argument("-c", "--ckpt",
+        # default=None,
+        default="../pretrained/yolox_s.pth",
+        type=str, help="checkpoint file") # -c yolox_s.pth,checkpoint file
     parser.add_argument(
         "-e",
         "--start_epoch",
@@ -71,7 +83,8 @@ def make_parser():
         "-o",
         "--occupy",
         dest="occupy",
-        default=False,
+        default=True,
+        # default=False,
         action="store_true",
         help="occupy GPU memory first for training.",
     )

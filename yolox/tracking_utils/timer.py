@@ -15,9 +15,11 @@ class Timer(object):
     def tic(self):
         # using time.time instead of time.clock because time time.clock
         # does not normalize for multithreading
+        # 记录了计时器的起始时间
         self.start_time = time.time()
 
     def toc(self, average=True):
+        # 记录计时器的结束时间，并计算执行时间
         self.diff = time.time() - self.start_time
         self.total_time += self.diff
         self.calls += 1

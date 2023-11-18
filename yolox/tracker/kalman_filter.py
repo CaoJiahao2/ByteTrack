@@ -8,6 +8,9 @@ Table for the 0.95 quantile of the chi-square distribution with N degrees of
 freedom (contains values for N=1, ..., 9). Taken from MATLAB/Octave's chi2inv
 function and used as Mahalanobis gating threshold.
 """
+# 在多目标跟踪中的卡尔曼滤波器或者其他距离度量中用于设定阈值
+# 以决定哪些观测值应该与跟踪器的预测值进行匹配
+# 在马氏距离中，这个阈值被称为马氏距离的“门限”（gating threshold）
 chi2inv95 = {
     1: 3.8415,
     2: 5.9915,
@@ -38,17 +41,19 @@ class KalmanFilter(object):
     """
 
     def __init__(self):
+        # 设置状态空间维度 ndim 为 4，时间步长 dt 为 1
         ndim, dt = 4, 1.
 
         # Create Kalman filter model matrices.
         self._motion_mat = np.eye(2 * ndim, 2 * ndim)
         for i in range(ndim):
-            self._motion_mat[i, ndim + i] = dt
-        self._update_mat = np.eye(ndim, 2 * ndim)
+            self._motion_mat[i, ndim + i] = dt # 运动模型矩阵
+        self._update_mat = np.eye(ndim, 2 * ndim) # 观测模型矩阵
 
         # Motion and observation uncertainty are chosen relative to the current
         # state estimate. These weights control the amount of uncertainty in
         # the model. This is a bit hacky.
+        # 控制模型中的不确定性程度
         self._std_weight_position = 1. / 20
         self._std_weight_velocity = 1. / 160
 
@@ -69,6 +74,7 @@ class KalmanFilter(object):
             to 0 mean.
 
         """
+        # 将位置和速度初始化为零，并将它们合并成一个包含8维元素的均值向量 mean
         mean_pos = measurement
         mean_vel = np.zeros_like(mean_pos)
         mean = np.r_[mean_pos, mean_vel]
@@ -82,6 +88,8 @@ class KalmanFilter(object):
             10 * self._std_weight_velocity * measurement[3],
             1e-5,
             10 * self._std_weight_velocity * measurement[3]]
+        # np.diag() 函数将一维数组转换为对角矩阵
+        # np.square() 函数用于计算数组各元素的平方
         covariance = np.diag(np.square(std))
         return mean, covariance
 
@@ -104,6 +112,9 @@ class KalmanFilter(object):
             state. Unobserved velocities are initialized to 0 mean.
 
         """
+        # 用于执行卡尔曼滤波器的预测步骤
+        # 该方法接受先前时间步的对象状态的均值向量 mean 和协方差矩阵 covariance
+        # 然后返回预测状态的均值向量和协方差矩阵。
         std_pos = [
             self._std_weight_position * mean[3],
             self._std_weight_position * mean[3],
@@ -117,7 +128,11 @@ class KalmanFilter(object):
         motion_cov = np.diag(np.square(np.r_[std_pos, std_vel]))
 
         #mean = np.dot(self._motion_mat, mean)
+        # 将均值向量 mean 通过模型矩阵 _motion_mat 进行预测
+        # 模型矩阵描述了对象状态在时间上的演化
         mean = np.dot(mean, self._motion_mat.T)
+        # np.linalg 处理矩阵的函数库
+        # np.linalg.multi_dot() 函数计算两个或多个数组的点积
         covariance = np.linalg.multi_dot((
             self._motion_mat, covariance, self._motion_mat.T)) + motion_cov
 
@@ -125,7 +140,7 @@ class KalmanFilter(object):
 
     def project(self, mean, covariance):
         """Project state distribution to measurement space.
-
+        用于将状态分布投影到测量空间，以便与实际观测进行比较
         Parameters
         ----------
         mean : ndarray
@@ -180,10 +195,12 @@ class KalmanFilter(object):
             self._std_weight_velocity * mean[:, 3]]
         sqr = np.square(np.r_[std_pos, std_vel]).T
 
+        # 将均值矩阵 mean 通过模型矩阵 _motion_mat 进行矢量化预测
+        # 这个模型矩阵描述了对象状态在时间上的演化
         motion_cov = []
         for i in range(len(mean)):
             motion_cov.append(np.diag(sqr[i]))
-        motion_cov = np.asarray(motion_cov)
+        motion_cov = np.asarray(motion_cov) # 注意是N维
 
         mean = np.dot(mean, self._motion_mat.T)
         left = np.dot(self._motion_mat, covariance).transpose((1, 0, 2))
@@ -193,7 +210,7 @@ class KalmanFilter(object):
 
     def update(self, mean, covariance, measurement):
         """Run Kalman filter correction step.
-
+        用于执行卡尔曼滤波器的校正步骤
         Parameters
         ----------
         mean : ndarray
@@ -213,11 +230,16 @@ class KalmanFilter(object):
         """
         projected_mean, projected_cov = self.project(mean, covariance)
 
+        # np.linalg.cho_factor() 函数计算矩阵的 Cholesky 分解
+        # Cholesky 分解是将一个对称正定的矩阵表示成一个下三角矩阵 L 和其转置的乘积的分解
+        # Cholesky 分解用于对称正定矩阵的开方，可以用来解线性方程系统
+        # 这里使用 Cholesky 分解是为了提高计算效率。
         chol_factor, lower = scipy.linalg.cho_factor(
             projected_cov, lower=True, check_finite=False)
         kalman_gain = scipy.linalg.cho_solve(
             (chol_factor, lower), np.dot(covariance, self._update_mat.T).T,
             check_finite=False).T
+        # 计算（innovation）向量，表示测量与投影的差异
         innovation = measurement - projected_mean
 
         new_mean = mean + np.dot(innovation, kalman_gain.T)
@@ -231,6 +253,8 @@ class KalmanFilter(object):
         A suitable distance threshold can be obtained from `chi2inv95`. If
         `only_position` is False, the chi-square distribution has 4 degrees of
         freedom, otherwise 2.
+        门限距离通常用于确定哪些测量可以与跟踪目标关联。具体而言，该方法计算状态分布和测量之间的
+        马哈拉诺比斯距离或欧氏距离的平方，并返回一个包含每个测量的距离的数组。
         Parameters
         ----------
         mean : ndarray
@@ -257,9 +281,10 @@ class KalmanFilter(object):
             measurements = measurements[:, :2]
 
         d = measurements - mean
-        if metric == 'gaussian':
+        if metric == 'gaussian': # 高斯距离
             return np.sum(d * d, axis=1)
-        elif metric == 'maha':
+        elif metric == 'maha': # 马哈拉诺比斯距离
+            # np.linalg.cholesky() 函数计算矩阵的 Cholesky 分解
             cholesky_factor = np.linalg.cholesky(covariance)
             z = scipy.linalg.solve_triangular(
                 cholesky_factor, d.T, lower=True, check_finite=False,

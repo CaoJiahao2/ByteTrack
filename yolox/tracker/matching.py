@@ -13,6 +13,8 @@ def merge_matches(m1, m2, shape):
     m1 = np.asarray(m1)
     m2 = np.asarray(m2)
 
+    # scipy.sparse.coo_matrix((data, (i, j)), [shape=(M, N)])
+    # is the standard way to build sparse matrix
     M1 = scipy.sparse.coo_matrix((np.ones(len(m1)), (m1[:, 0], m1[:, 1])), shape=(O, P))
     M2 = scipy.sparse.coo_matrix((np.ones(len(m2)), (m2[:, 0], m2[:, 1])), shape=(P, Q))
 
@@ -26,6 +28,7 @@ def merge_matches(m1, m2, shape):
 
 
 def _indices_to_matches(cost_matrix, indices, thresh):
+    # 接受一个成本矩阵、索引集合和阈值，并返回匹配、未匹配的源和未匹配的目标
     matched_cost = cost_matrix[tuple(zip(*indices))]
     matched_mask = (matched_cost <= thresh)
 
@@ -37,6 +40,12 @@ def _indices_to_matches(cost_matrix, indices, thresh):
 
 
 def linear_assignment(cost_matrix, thresh):
+    """
+    Solve linear assignment problem.
+    :type cost_matrix: np.ndarray
+    :type thresh: float
+    :rtype: tuple[list[int], list[int]]
+    """
     if cost_matrix.size == 0:
         return np.empty((0, 2), dtype=int), tuple(range(cost_matrix.shape[0])), tuple(range(cost_matrix.shape[1]))
     matches, unmatched_a, unmatched_b = [], [], []
@@ -63,6 +72,7 @@ def ious(atlbrs, btlbrs):
         return ious
 
     ious = bbox_ious(
+        # .ascotiguousarray() 返回一个具有相同数据的新的 ndarray，且数据以 C 风格的顺序存储
         np.ascontiguousarray(atlbrs, dtype=np.float),
         np.ascontiguousarray(btlbrs, dtype=np.float)
     )

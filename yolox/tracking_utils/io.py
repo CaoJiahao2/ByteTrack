@@ -4,6 +4,7 @@ import numpy as np
 
 
 def write_results(filename, results_dict: Dict, data_type: str):
+    """Write tracking results to file."""
     if not filename:
         return
     path = os.path.dirname(filename)
@@ -31,6 +32,7 @@ def write_results(filename, results_dict: Dict, data_type: str):
 
 
 def read_results(filename, data_type: str, is_gt=False, is_ignore=False):
+    """Read tracking results."""
     if data_type in ('mot', 'lab'):
         read_fun = read_mot_results
     else:
@@ -58,6 +60,7 @@ labels={'ped', ...			% 1
 
 
 def read_mot_results(filename, is_gt, is_ignore):
+    """Read MOT result file."""
     valid_labels = {1}
     ignore_labels = {2, 7, 8, 12}
     results_dict = dict()
@@ -70,6 +73,8 @@ def read_mot_results(filename, is_gt, is_ignore):
                 fid = int(linelist[0])
                 if fid < 1:
                     continue
+                # setdefault() method returns the value of a key (if the key is in dictionary).
+                # 如果字典中没有当前帧的键，则在字典中添加该键，对应的值是一个空列表。
                 results_dict.setdefault(fid, list())
 
                 box_size = float(linelist[4]) * float(linelist[5])
@@ -108,6 +113,8 @@ def read_mot_results(filename, is_gt, is_ignore):
 
 def unzip_objs(objs):
     if len(objs) > 0:
+        # objs = [tlwhs, ids, scores],
+        # zip is a function that can combine multiple lists into a list of tuples
         tlwhs, ids, scores = zip(*objs)
     else:
         tlwhs, ids, scores = [], [], []
