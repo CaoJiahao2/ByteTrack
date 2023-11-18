@@ -1,5 +1,6 @@
 import numpy as np
 from collections import OrderedDict
+# OrderedDict is a dict subclass that remembers the order that keys were first inserted.
 
 
 class TrackState(object):
