@@ -60,6 +60,8 @@ class Exp(BaseExp):
         self.nmsthre = 0.65
 
     def get_model(self):
+        """获取 YOLOX 模型，并对其进行一些初始化操作
+        如果该方法被多次调用，它将返回相同的模型，以避免重复创建"""
         from yolox.models import YOLOPAFPN, YOLOX, YOLOXHead
 
         def init_yolo(M):
@@ -83,7 +85,7 @@ class Exp(BaseExp):
             COCODataset,
             DataLoader,
             InfiniteSampler,
-            MosaicDetection,
+            MosaicDetection, # MosaicDetection 用于实现 Mosaic 数据增强
             TrainTransform,
             YoloBatchSampler
         )
@@ -99,6 +101,7 @@ class Exp(BaseExp):
             ),
         )
 
+        # MosaicDetection 用于实现 Mosaic 数据增强
         dataset = MosaicDetection(
             dataset,
             mosaic=not no_aug,
@@ -123,6 +126,7 @@ class Exp(BaseExp):
 
         sampler = InfiniteSampler(len(self.dataset), seed=self.seed if self.seed else 0)
 
+        # 创建一个无限循环的采样器，用于生成索引序列
         batch_sampler = YoloBatchSampler(
             sampler=sampler,
             batch_size=batch_size,
@@ -131,23 +135,26 @@ class Exp(BaseExp):
             mosaic=not no_aug,
         )
 
-        dataloader_kwargs = {"num_workers": self.data_num_workers, "pin_memory": True}
-        dataloader_kwargs["batch_sampler"] = batch_sampler
+        dataloader_kwargs = {"num_workers": self.data_num_workers,
+                             "pin_memory": True, "batch_sampler": batch_sampler}
         train_loader = DataLoader(self.dataset, **dataloader_kwargs)
 
         return train_loader
 
     def random_resize(self, data_loader, epoch, rank, is_distributed):
+        # 创建了一个包含两个元素的长整型张量，并将其放置在 GPU 上
         tensor = torch.LongTensor(2).cuda()
 
         if rank == 0:
-            size_factor = self.input_size[1] * 1.0 / self.input_size[0]
+            size_factor = self.input_size[1] * 1.0 / self.input_size[0]#计算了输入尺寸的宽高比
             size = random.randint(*self.random_size)
             size = (int(32 * size), 32 * int(size * size_factor))
             tensor[0] = size[0]
             tensor[1] = size[1]
 
         if is_distributed:
+            # 如果是分布式训练，使用分布式通信中的 dist.barrier() 同步所有进程
+            # 并使用 dist.broadcast 广播张量 tensor
             dist.barrier()
             dist.broadcast(tensor, 0)
 
@@ -200,6 +207,9 @@ class Exp(BaseExp):
         return scheduler
 
     def get_eval_loader(self, batch_size, is_distributed, testdev=False):
+        """
+        配置并返回一个用于评估的数据加载器，其中包括 COCO 数据集的加载、预处理和其他相关设置
+        """
         from yolox.data import COCODataset, ValTransform
 
         valdataset = COCODataset(
@@ -211,7 +221,8 @@ class Exp(BaseExp):
                 rgb_means=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
             ),
         )
-
+        #如果是分布式训练，调整每个进程的批大小，并创建分布式采样器 DistributedSampler
+        # 否则，使用顺序采样器 SequentialSampler
         if is_distributed:
             batch_size = batch_size // dist.get_world_size()
             sampler = torch.utils.data.distributed.DistributedSampler(
@@ -220,12 +231,8 @@ class Exp(BaseExp):
         else:
             sampler = torch.utils.data.SequentialSampler(valdataset)
 
-        dataloader_kwargs = {
-            "num_workers": self.data_num_workers,
-            "pin_memory": True,
-            "sampler": sampler,
-        }
-        dataloader_kwargs["batch_size"] = batch_size
+        dataloader_kwargs = {"num_workers": self.data_num_workers, "pin_memory": True,
+                             "sampler": sampler, "batch_size": batch_size}
         val_loader = torch.utils.data.DataLoader(valdataset, **dataloader_kwargs)
 
         return val_loader

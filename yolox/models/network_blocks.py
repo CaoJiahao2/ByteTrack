@@ -15,6 +15,7 @@ class SiLU(nn.Module):
 
 
 def get_activation(name="silu", inplace=True):
+    # inplace 指定是否在原地进行操作（in-place）
     if name == "silu":
         module = nn.SiLU(inplace=inplace)
     elif name == "relu":
@@ -77,7 +78,7 @@ class DWConv(nn.Module):
 
 
 class Bottleneck(nn.Module):
-    # Standard bottleneck
+    """Standard bottleneck"""
     def __init__(
         self,
         in_channels,
@@ -102,7 +103,7 @@ class Bottleneck(nn.Module):
 
 
 class ResLayer(nn.Module):
-    "Residual layer with `in_channels` inputs."
+    """Residual layer with `in_channels` inputs."""
 
     def __init__(self, in_channels: int):
         super().__init__()
@@ -145,7 +146,9 @@ class SPPBottleneck(nn.Module):
 
 
 class CSPLayer(nn.Module):
-    """C3 in yolov5, CSP Bottleneck with 3 convolutions"""
+    """C3 in yolov5, CSP Bottleneck with 3 convolutions
+    通过将输入在通道维度上分成两部分，经过一系列的 Bottleneck
+    模块后再进行拼接，以提高特征表达能力"""
 
     def __init__(
         self,
@@ -186,7 +189,8 @@ class CSPLayer(nn.Module):
 
 
 class Focus(nn.Module):
-    """Focus width and height information into channel space."""
+    """Focus width and height information into channel space.
+    实现对输入宽度和高度信息的聚合，将这些信息转换到通道维度上，以提供更丰富的特征表示"""
 
     def __init__(self, in_channels, out_channels, ksize=1, stride=1, act="silu"):
         super().__init__()

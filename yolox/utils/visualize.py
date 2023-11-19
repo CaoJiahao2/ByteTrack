@@ -11,6 +11,8 @@ __all__ = ["vis"]
 def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
 
     for i in range(len(boxes)):
+        # 通过循环处理每个检测到的边界框
+        # 实现了在图像上添加了类别和置信度信息的可视化效果。
         box = boxes[i]
         cls_id = int(cls_ids[i])
         score = scores[i]
@@ -43,6 +45,7 @@ def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):
 
 
 def get_color(idx):
+    # 通过不同的输入索引，可以获得不同的颜色，用于区分不同的类别或对象
     idx = idx * 3
     color = ((37 * idx) % 255, (17 * idx) % 255, (29 * idx) % 255)
 
@@ -50,6 +53,7 @@ def get_color(idx):
 
 
 def plot_tracking(image, tlwhs, obj_ids, scores=None, frame_id=0, fps=0., ids2=None):
+    # 在图像上展示帧数、帧率以及每个跟踪对象的边界框和对象ID
     im = np.ascontiguousarray(np.copy(image))
     im_h, im_w = im.shape[:2]
 

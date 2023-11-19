@@ -31,6 +31,7 @@ class YOLOX(nn.Module):
 
         if self.training:
             assert targets is not None
+            # computes various loss components during training
             loss, iou_loss, conf_loss, cls_loss, l1_loss, num_fg = self.head(
                 fpn_outs, targets, x
             )
@@ -43,6 +44,9 @@ class YOLOX(nn.Module):
                 "num_fg": num_fg,
             }
         else:
+        # If the model is in evaluation or inference mode (self.training is False),
+        # it directly returns the outputs from the head, which include predicted
+        # bounding boxes, objectness scores, and class probabilities.
             outputs = self.head(fpn_outs)
 
         return outputs

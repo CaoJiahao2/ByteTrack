@@ -3,6 +3,8 @@
 # Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
 
 import importlib
+# importlib is a library that provides the importlib.import_module() function,
+# and provides a convenient way to programmatically import any Python module.
 import os
 import sys
 
@@ -31,6 +33,7 @@ def get_exp_by_name(exp_name):
         "yolov3": "yolov3.py",
     }
     filename = filedict[exp_name]
+    # .join() method in Python join one or more path components intelligently.
     exp_path = os.path.join(yolox_path, "exps", "default", filename)
     return get_exp_by_file(exp_path)
 
@@ -46,7 +49,7 @@ def get_exp(exp_file, exp_name):
     """
     assert (
         exp_file is not None or exp_name is not None
-    ), "plz provide exp file or exp name."
+    ), "please provide exp file or exp name."
     if exp_file is not None:
         return get_exp_by_file(exp_file)
     else:

@@ -11,6 +11,7 @@ from .network_blocks import BaseConv, CSPLayer, DWConv
 
 class YOLOPAFPN(nn.Module):
     """
+    backbone + fpn + head
     YOLOv3 model. Darknet 53 is the default backbone of this model.
     """
 
