@@ -9,6 +9,7 @@ from yolox.exp import Exp as MyExp
 from yolox.data import get_yolox_datadir
 
 class Exp(MyExp):
+    #TODO don't forget to motify get_data_loader and get_eval_loader in your exp file
     def __init__(self):
         super(Exp, self).__init__()
         self.num_classes = 1

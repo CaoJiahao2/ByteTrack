@@ -10,10 +10,15 @@ import argparse
 import random
 import warnings
 
+# import os
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+# os.environ['LOCAL_RANK'] = '0,1,2,3'
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX train parser")
-    parser.add_argument("-expn", "--experiment-name", type=str, default=None)
+    parser.add_argument("-expn", "--experiment-name", type=str,
+        # default=None
+        default="debug1",)
     parser.add_argument("-n", "--name", type=str, default=None, help="model name")
 
     # distributed
@@ -42,7 +47,8 @@ def make_parser():
     parser.add_argument(
         "-f",
         "--exp_file",
-        default=None,
+        # default=None,
+        default="../exps/example/mot/yolox_s_mix_det.py",
         type=str,
         help="plz input your expriment description file", # -f yolox_s.py,plz input your expriment description file
     )
@@ -50,8 +56,8 @@ def make_parser():
         "--resume", default=False, action="store_true", help="resume training" # --resume, resume training
     )
     parser.add_argument("-c", "--ckpt",
-        default=None,
-        # default="../pretrained/yolox_s.pth",
+        # default=None,
+        default="../pretrained/yolox_s.pth",
         type=str, help="checkpoint file") # -c yolox_s.pth,checkpoint file
     parser.add_argument(
         "-e",
@@ -111,7 +117,7 @@ def main(exp, args):
 
 
 if __name__ == "__main__":
-    args = make_parser().parse_args()
+    args = make_parser().parse_args() # function make_parser() return parser
     exp = get_exp(args.exp_file, args.name)
     exp.merge(args.opts)
 
